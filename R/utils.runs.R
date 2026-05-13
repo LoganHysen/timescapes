@@ -1,5 +1,8 @@
 .ts_invalid_binary <- function(x) {
-  !is.numeric(x) || any(!is.na(x) & !(x %in% c(0, 1)))
+  if (!is.numeric(x)) return(TRUE)
+
+  x_non_na <- x[!is.na(x)]
+  any(!(x_non_na %in% c(0, 1)))
 }
 
 get_runs <- function(x) {

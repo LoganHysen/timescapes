@@ -2,7 +2,9 @@ Package: timescapemetrics
 Title: Timescape Metrics R Package
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
+    c(person("Logan", "Hysen", , "hysenlog@msu.edu", role = c("aut", "cre")),
+    person("Ho Yi", "Wan", , "wanhoyi@ufl.edu", role = c("aut", "cre"))
+    )
 Description: This package allows users to calculate ecological timescape
     metrics
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a

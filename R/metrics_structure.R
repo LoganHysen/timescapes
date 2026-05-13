@@ -10,8 +10,8 @@
 ts_n_periods <- function(x) {
   if (.ts_invalid_binary(x)) return(NA_real_)
   rr <- get_runs(x)
-  if (is.null(rr$one_runs)) return(0)
-  nrow(rr$one_runs)
+  if (is.null(rr$one_runs)) return(0L)
+  as.integer(nrow(rr$one_runs))
 }
 
 #' Mean gap length
@@ -36,8 +36,8 @@ ts_gap_max <- function(x) {
   if (.ts_invalid_binary(x)) return(NA_real_)
   rr <- get_runs(x)
   gaps <- rr$gap_runs
-  if (is.null(gaps) || nrow(gaps) == 0) return(0)
-  max(gaps$end - gaps$start + 1)
+  if (is.null(gaps) || nrow(gaps) == 0) return(0L)
+  as.integer(max(gaps$end - gaps$start + 1))
 }
 
 #' Duration variability (SD of run lengths)
@@ -84,8 +84,8 @@ ts_n_core_periods <- function(x, core_buffer = 1L) {
   if (.ts_invalid_binary(x)) return(NA_real_)
   rr <- get_runs(x)
   runs <- rr$one_runs
-  if (is.null(runs)) return(0)
+  if (is.null(runs)) return(0L)
 
   lengths <- runs$end - runs$start + 1
-  sum(lengths > 2L * core_buffer)
+  as.integer(sum(lengths > 2L * core_buffer))
 }

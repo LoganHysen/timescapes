@@ -10,7 +10,7 @@
 ts_total_time <- function(x) {
   if (.ts_invalid_binary(x)) return(NA_real_)
   x <- as.integer(x)
-  sum(x, na.rm = TRUE)
+  as.integer(sum(x, na.rm = TRUE))
 }
 
 #' Temporal edge density
