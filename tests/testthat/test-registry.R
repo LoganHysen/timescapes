@@ -53,3 +53,24 @@ test_that("registry helpers reject unknown or malformed metric names", {
   expect_error(ts_metrics(x, c("total_time", "")), "character vector of non-empty metric names")
   expect_error(ts_metrics(x, c("total_time", "not_a_metric")), "Available metrics")
 })
+
+test_that("ts_metric works for all registry entries", {
+
+  x <- c(1,1,0,0,1,1)
+
+  for (m in names(.ts_registry)) {
+    expect_no_error(ts_metric(x, m))
+  }
+
+})
+
+test_that("ts_metrics returns named vector", {
+
+  x <- c(1,1,0,0,1,1)
+
+  res <- ts_metrics(x)
+
+  expect_true(is.numeric(res))
+  expect_named(res)
+
+})

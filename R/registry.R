@@ -70,3 +70,25 @@ ts_metrics <- function(x, metrics = names(.ts_registry)) {
     metrics
   )
 }
+
+#' Calculate temporal metrics
+#'
+#' @param x A binary time series (vector)
+#' @param metrics Character vector of metrics (default = all)
+#' @return Named numeric vector
+#' @export
+ts_calculate <- function(x, metrics = "all") {
+  
+  if (identical(metrics, "all")) {
+    return(ts_metrics(x))
+  }
+  
+  sapply(metrics, function(m) ts_metric(x, m))
+}
+
+#' List available timescape metrics
+#' @return Character vector of metric names
+#' @export
+ts_list_metrics <- function() {
+  names(.ts_registry)
+}

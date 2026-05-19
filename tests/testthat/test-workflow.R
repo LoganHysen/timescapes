@@ -29,3 +29,18 @@ test_that("metrics behave sensibly across scenarios", {
   expect_true(res1["n_periods"] <= res2["n_periods"])
 })
 
+
+test_that("ts_metrics works on realistic scenarios", {
+
+  ts_examples <- list(
+    continuous = rep(1, 10),
+    fragmented = rep(c(1,0), 5),
+    two_periods = c(1,1,1,0,0,1,1,1)
+  )
+
+  res <- lapply(ts_examples, ts_metrics)
+
+  expect_true(all(sapply(res, is.numeric)))
+  expect_true(all(sapply(res, function(x) length(x) > 0)))
+
+})

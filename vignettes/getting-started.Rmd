@@ -1,0 +1,240 @@
+---
+title: "Getting Started with timescapemetrics"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with timescapemetrics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 3.5
+)
+```
+
+`timescapemetrics` calculates simple, interpretable summaries of binary
+time series. For example, consider the case of habitat availability for an imaginary species. 
+A time series of habitat availability is represented as a numeric vector
+where `1` means habitat is available at a time step and `0` means habitat is
+not available.
+
+This vignette introduces the basic workflow:
+
+1. Create or import a binary time series.
+2. Calculate one or more temporal metrics.
+3. Compare metric values across temporal scenarios.
+4. Interpret what the metrics say about habitat persistence, gaps, and
+   fragmentation through time.
+
+## Load the package
+
+```{r load-package}
+library(timescapemetrics)
+```
+
+## Start with one time series
+
+Here is a small example with two periods of habitat availability separated by
+unavailable time steps. Each time step in this case represents a year, so the first three years 
+have available habitat, then two years of unavailable habitat, followed by three 
+more years of available habitat and one year of unavailable habitat.
+
+```{r example-series}
+x <- c(1, 1, 1, 0, 0, 1, 1, 0)
+x
+```
+
+The values can be visualized as a simple timeline.
+
+```{r plot-example-series}
+plot(
+  seq_along(x), x,
+  type = "s",
+  ylim = c(-0.1, 1.1),
+  xlab = "Time step",
+  ylab = "Habitat available",
+  yaxt = "n",
+  main = "Binary habitat availability through time"
+)
+axis(2, at = c(0, 1), labels = c("No", "Yes"), las = 1)
+```
+
+
+## Calculate all metrics
+
+Use `ts_metrics()` to calculate the default set of metrics for one series.
+
+```{r all-metrics}
+ts_metrics(x)
+```
+
+The result is a named numeric vector. Each value summarizes a different aspect
+of temporal structure:
+
+| Metric | What it describes in terms of habitat availability |
+| --- | --- |
+| `total_time` | Number of available time steps. |
+| `n_periods` | Number of distinct availability periods. |
+| `gap_mean` | Mean length of unavailable gaps. |
+| `gap_max` | Longest unavailable gap. |
+| `duration_sd` | Variability in the lengths of availability periods. |
+| `edge_density` | Frequency of transitions between unavailable and available states. |
+| `autocorr` | Lag-1 temporal autocorrelation. |
+| `aggregation` | Proportion of neighboring time steps with the same state. |
+| `core_time_index` | Proportion of available time that remains after removing edge time steps from each availability period. |
+| `n_core_periods` | Number of availability periods long enough to contain core time. |
+
+## Calculate selected metrics
+
+If you only need a few metrics, pass their names to `ts_metrics()`.
+
+```{r selected-metrics}
+ts_metrics(
+  x,
+  metrics = c("total_time", "n_periods", "gap_mean", "edge_density")
+)
+```
+
+For a single metric, use `ts_metric()`.
+
+```{r single-metric}
+ts_metric(x, "n_periods")
+```
+
+Metrics can also be called directly as functions.
+
+```{r direct-functions}
+ts_total_time(x)
+ts_gap_max(x)
+ts_core_time_index(x, core_buffer = 1)
+```
+
+## Compare temporal scenarios
+
+Metrics can be used to compare time series that differ in total
+availability, fragmentation, or gap structure. The examples below all have the
+same number of time steps, but they arrange available habitat differently.
+
+```{r scenarios}
+scenarios <- list(
+  continuous = c(0, 0, 1, 1, 1, 1, 1, 1, 0, 0),
+  loss_only = c(0, 0, 0, 1, 1, 1, 1, 0, 0, 0),
+  fragmented = c(0, 1, 1, 0, 1, 1, 0, 1, 1, 0),
+  irregular = c(1, 0, 1, 1, 0, 0, 1, 0, 1, 1)
+)
+```
+
+```{r plot-scenarios}
+op <- par(mar = c(4, 8, 2, 1))
+series_gap <- 1.8
+series_y <- rev(seq_along(scenarios)) * series_gap
+
+plot(
+  NULL,
+  xlim = c(1, length(scenarios[[1]])),
+  ylim = c(min(series_y) - 0.5, max(series_y) + 1.5),
+  xlab = "Time step",
+  ylab = "",
+  yaxt = "n",
+  main = "Example temporal scenarios"
+)
+
+for (i in seq_along(scenarios)) {
+  lines(
+    seq_along(scenarios[[i]]),
+    scenarios[[i]] + series_y[i],
+    type = "s",
+    lwd = 2
+  )
+}
+
+axis(
+  2,
+  at = series_y + 0.5,
+  labels = names(scenarios),
+  las = 1,
+  tick = FALSE
+)
+par(op)
+```
+
+Calculate the same metrics for every scenario and combine the results into a
+data frame.
+
+```{r scenario-metrics}
+scenario_metrics <- do.call(
+  rbind,
+  lapply(names(scenarios), function(name) {
+    data.frame(
+      scenario = name,
+      t(ts_metrics(scenarios[[name]])),
+      row.names = NULL,
+      check.names = FALSE
+    )
+  })
+)
+
+scenario_metrics
+```
+
+You can then compare individual metrics across scenarios.
+
+```{r compare-key-metrics}
+scenario_metrics[, c(
+  "scenario",
+  "total_time",
+  "n_periods",
+  "gap_mean",
+  "edge_density",
+  "aggregation"
+)]
+```
+
+In this example, the fragmented scenario has multiple availability periods and
+more transitions between `0` and `1`. The continuous scenario has fewer
+transitions and higher aggregation because neighboring time steps are more often
+in the same state.
+
+## Work with your own data
+
+For now, your input should be a numeric vector containing `0` and `1` values. Missing
+values are accepted, but it is usually best to decide how they should be handled
+before comparing metrics across time series. For example, if you have a data
+frame with one row per time step:
+
+```{r data-frame-example}
+habitat <- data.frame(
+  time = 1:8,
+  available = c(1, 1, 0, 0, 1, 1, 1, 0)
+)
+
+ts_metrics(habitat$available)
+```
+
+Non-binary values return `NA`, which helps catch accidental use of continuous
+or categorical inputs before interpreting the metrics.
+
+```{r invalid-input}
+ts_metrics(c(0, 1, 2, 1))
+```
+
+## Choosing metrics
+
+Different questions call for different summaries:
+
+- Use `total_time` when you care about the amount of available habitat through
+  time.
+- Use `n_periods`, `edge_density`, or `aggregation` when you care about temporal
+  fragmentation.
+- Use `gap_mean` and `gap_max` when interruptions in availability are important.
+- Use `core_time_index` and `n_core_periods` when short or edge-dominated
+  availability periods may be less useful than sustained availability.
+
+These metrics are intentionally simple. They are designed to make temporal
+structure easier to compare across sites, species, simulations, or management
+scenarios while keeping the interpretation tied to the original binary time
+series.

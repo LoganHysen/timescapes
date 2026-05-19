@@ -71,3 +71,12 @@ test_that("ts_autocorr returns NA_real_ for invalid inputs", {
   expect_identical(ts_autocorr(c("1", "0")), NA_real_)
   expect_identical(ts_autocorr(c(TRUE, FALSE)), NA_real_)
 })
+
+test_that("loss reduces total time", {
+
+  x_full <- rep(1, 10)
+  x_loss <- c(rep(0, 3), rep(1, 7))
+
+  expect_lt(ts_total_time(x_loss), ts_total_time(x_full))
+
+})

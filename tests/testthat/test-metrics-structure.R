@@ -99,3 +99,24 @@ test_that("ts_n_core_periods returns NA_real_ for invalid inputs", {
   expect_identical(ts_n_core_periods(c("1", "0")), NA_real_)
   expect_identical(ts_n_core_periods(c(TRUE, FALSE)), NA_real_)
 })
+
+
+test_that("fragmentation increases number of periods", {
+
+  x_cont <- rep(1, 10)
+  x_frag <- rep(c(1,0), 5)
+
+  expect_gt(ts_n_periods(x_frag), ts_n_periods(x_cont))
+
+})
+
+test_that("fragmentation increases edge density", {
+
+  x_cont <- rep(1, 10)
+  x_frag <- rep(c(1,0), 5)
+
+  expect_gt(ts_edge_density(x_frag), ts_edge_density(x_cont))
+
+})
+
+
