@@ -41,7 +41,7 @@ ts_raster_metric <- function(r, metric, classes = NULL, ...) {
 
   terra::app(r, fun = function(x) {
     if (!is.null(classes)) {
-      x <- ifelse(is.na(x), NA_real_, as.numeric(x %in% classes))
+      x <- ifelse(is.na(x), NA_integer_, as.integer(x %in% classes))
     }
 
     if (length(dots) == 0L) {
