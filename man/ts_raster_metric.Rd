@@ -12,14 +12,17 @@ ts_raster_metric(r, metric, classes = NULL, ...)
 \item{metric}{A single character string naming a metric in the timescape
 metric registry.}
 
-\item{classes}{Optional vector of raster values to treat as presence. If
-\code{NULL}, raster values are assumed to already be binary \code{0}/\code{1}.}
+\item{classes}{Optional vector of raster values to calculate separately. If
+\code{NULL}, raster values are assumed to already be binary \code{0}/\code{1}. If
+provided, one output layer is returned for each class, with that class
+treated as presence.}
 
 \item{...}{Additional arguments passed to the selected metric function.}
 }
 \value{
-A single-layer \code{terra::SpatRaster} where each cell contains the
-metric value computed across time.
+A \code{terra::SpatRaster} where each cell contains the metric value
+computed across time. If \code{classes} is \code{NULL}, the result has one layer. If
+\code{classes} is provided, the result has one layer per class.
 }
 \description{
 \code{ts_raster_metric()} applies a named timescape metric to each cell of a
@@ -30,6 +33,10 @@ if (requireNamespace("terra", quietly = TRUE)) {
   r <- terra::rast(nrows = 10, ncols = 10, nlyrs = 5)
   terra::values(r) <- sample(c(0, 1), terra::ncell(r) * 5, replace = TRUE)
   ts_raster_metric(r, "n_periods")
+
+  r_classes <- terra::rast(nrows = 10, ncols = 10, nlyrs = 5)
+  terra::values(r_classes) <- sample(1:3, terra::ncell(r_classes) * 5, replace = TRUE)
+  ts_raster_metric(r_classes, "n_periods", classes = c(1, 2, 3))
 }
 
 }
