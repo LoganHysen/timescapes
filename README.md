@@ -1,6 +1,6 @@
-# timescapemetrics
+# timescape
 
-`timescapemetrics` is an R package for calculating simple temporal landscape
+`timescape` is an R package for calculating simple temporal landscape
 metrics from binary time series and raster time stacks.
 
 The package is currently in active development. It is ready to experiment with,
@@ -28,7 +28,7 @@ Timescape metrics are calculated from binary time series, where `1` indicates
 presence and `0` indicates absence.
 
 ```r
-library(timescapemetrics)
+library(timescape)
 
 x <- c(1, 1, 0, 0, 1, 1, 1, 0)
 
@@ -57,7 +57,7 @@ a metric to each cell through time.
 
 ```r
 library(terra)
-library(timescapemetrics)
+library(timescape)
 
 r <- rast(nrows = 10, ncols = 10, nlyrs = 5)
 values(r) <- sample(c(0, 1), ncell(r) * nlyr(r), replace = TRUE)
