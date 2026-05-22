@@ -12,7 +12,7 @@ Install the development version from GitHub:
 
 ```r
 # install.packages("remotes")
-remotes::install_github("LoganHysen/timescapemetrics")
+remotes::install_github("LoganHysen/timescape")
 ```
 
 Or, if you have cloned the repository locally:
