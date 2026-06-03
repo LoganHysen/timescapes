@@ -10,7 +10,7 @@ base <- rast(nrows = nrow, ncols = ncol)
 values(base) <- runif(ncell(base))
 
 # smooth → creates patches
-base <- focal(base, w = matrix(1,7,7), fun = mean, na.policy = "omit")
+base <- focal(base, w = matrix(1,7,7), fun = mean, na.policy = "omit", na.rm = TRUE)
 
 # classify into 3 land cover classes
 base_class <- classify(
@@ -37,7 +37,7 @@ for (t in 1:nt) {
   values(current) <- pmin(pmax(current_vals, 0), 1)
   
   # 2. smooth → patch evolution
-  current <- focal(current, w = matrix(1,5,5), fun = mean, na.policy = "omit")
+  current <- focal(current, w = matrix(1,5,5), fun = mean, na.policy = "omit", na.rm = TRUE)
   
   # 3. classify into land cover classes
   layer <- classify(
