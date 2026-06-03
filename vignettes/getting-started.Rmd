@@ -44,7 +44,7 @@ have available habitat, then two years of unavailable habitat, followed by three
 more years of available habitat and one year of unavailable habitat.
 
 ```{r example-series}
-x <- c(1, 1, 1, 0, 0, 1, 1, 0)
+x <- rep(c(1, 1, 1, 0, 0, 1, 1, 0), 10)
 x
 ```
 
@@ -111,6 +111,7 @@ Metrics can also be called directly as functions.
 ts_total_time(x)
 ts_gap_max(x)
 ts_core_time_index(x, core_buffer = 1)
+ts_list_metrics()
 ```
 
 ## Compare temporal scenarios

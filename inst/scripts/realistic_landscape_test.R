@@ -1,4 +1,5 @@
 library(terra)
+library(timescapemetrics)
 
 set.seed(1)
 
@@ -10,7 +11,7 @@ base <- rast(nrows = nrow, ncols = ncol)
 values(base) <- runif(ncell(base))
 
 # smooth → creates patches
-base <- focal(base, w = matrix(1,7,7), fun = mean, na.policy = "omit")
+base <- focal(base, w = matrix(1,7,7), fun = mean, na.policy = "omit", na.rm = TRUE)
 
 # classify into 3 land cover classes
 base_class <- classify(
@@ -37,7 +38,7 @@ for (t in 1:nt) {
   values(current) <- pmin(pmax(current_vals, 0), 1)
   
   # 2. smooth → patch evolution
-  current <- focal(current, w = matrix(1,5,5), fun = mean, na.policy = "omit")
+  current <- focal(current, w = matrix(1,5,5), fun = mean, na.policy = "omit", na.rm = TRUE)
   
   # 3. classify into land cover classes
   layer <- classify(
@@ -64,9 +65,9 @@ plot(
 
 # Calculate timescape metrics on the simulated raster
 # notice we are only doing this for class 1 (the "purple" land cover) to speed things up, but you can do it for all classes if you want
-frag_map <- ts_raster_metric(r, "n_periods", classes = 1)
+timescape_ed <- ts_raster_metric(r, "edge_density", classes = 2)
 
-plot(frag_map)
+plot(timescape_ed)
 
 
 # Verify the metric values
@@ -78,6 +79,8 @@ idx2 <- cellFromRowCol(r, 50, 70)
 
 x1 <- values(r)[idx1, ]
 x2 <- values(r)[idx2, ]
+
+frag_map <- ts_raster_metric(r, "n_periods", classes = 1)
 
 # these should be the same
 ts_metric(as.integer(x1 == 1), "n_periods")
@@ -109,27 +112,27 @@ res_stack <- rast(metric_maps)
 names(res_stack) <- metrics
 plot(res_stack)
 
-library(dplyr)
-library(tidyr)
+# library(dplyr)
+# library(tidyr)
+# 
+# df <- as.data.frame(res_stack, xy = TRUE, na.rm = TRUE)
 
-df <- as.data.frame(res_stack, xy = TRUE, na.rm = TRUE)
-
-df_long <- df_long %>%
-  group_by(metric) %>%
-  mutate(value_scaled = (value - min(value)) / (max(value) - min(value))) %>%
-  ungroup()
-
-library(ggplot2)
-
-ggplot(df_long, aes(x, y, fill = value_scaled)) +
-  geom_raster() +
-  facet_wrap(~metric) +
-  scale_fill_viridis_c(name = "Relative value") +
-  coord_equal() +
-  theme_minimal() +
-  theme(
-  panel.grid = element_blank(),
-  strip.text = element_text(face = "bold"),
-  axis.text = element_blank(),
-  axis.ticks = element_blank()
-)
+# df_long <- df %>%
+#   group_by(metric) %>%
+#   mutate(value_scaled = (value - min(value)) / (max(value) - min(value))) %>%
+#   ungroup()
+# 
+# library(ggplot2)
+# 
+# ggplot(df_long, aes(x, y, fill = value_scaled)) +
+#   geom_raster() +
+#   facet_wrap(~metric) +
+#   scale_fill_viridis_c(name = "Relative value") +
+#   coord_equal() +
+#   theme_minimal() +
+#   theme(
+#   panel.grid = element_blank(),
+#   strip.text = element_text(face = "bold"),
+#   axis.text = element_blank(),
+#   axis.ticks = element_blank()
+# )
