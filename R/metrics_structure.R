@@ -9,9 +9,9 @@
 #' @export
 ts_n_periods <- function(x) {
   if (.ts_invalid_binary(x)) return(NA_real_)
-  rr <- get_runs(x)
-  if (is.null(rr$one_runs)) return(0L)
-  as.integer(nrow(rr$one_runs))
+  x <- as.integer(x)
+  x[is.na(x)] <- 0L
+  as.integer(sum(diff(c(0L, x)) == 1L))
 }
 
 #' Mean gap length

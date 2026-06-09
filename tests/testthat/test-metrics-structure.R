@@ -33,6 +33,11 @@ test_that("ts_n_periods returns NA_real_ for invalid inputs", {
   expect_identical(ts_n_periods(c(TRUE, FALSE)), NA_real_)
 })
 
+test_that("ts_n_periods treats missing values as run breaks", {
+  expect_equal(ts_n_periods(c(1, NA, 1, 1)), 2)
+  expect_equal(ts_n_periods(c(NA_real_, NA_real_)), 0)
+})
+
 test_that("ts_gap_mean computes mean gap length", {
   expect_equal(ts_gap_mean(c(1, 1, 0, 0, 1, 0, 1, 1, 1)), 1.5)
   expect_equal(ts_gap_mean(c(1, 1, 1)), 0)
