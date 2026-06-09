@@ -2,76 +2,77 @@ library(terra)
 library(timescapemetrics)
 
 # Simple raster benchmark for all timescape metrics.
-# Increase `sizes`, `nt`, or `n_reps` if you want a longer run or to test larger rasters.
+# Adjust these values for longer runs or larger rasters.
 
 set.seed(1)
 
-sizes <- c(50, 100, 200)
-nt <- 20
-n_reps <- 3
+raster_sizes <- c(50L, 100L, 200L)
+n_times <- 20L
+n_reps <- 3L
 metrics <- ts_list_metrics()
 
-make_binary_raster <- function(n, nt) {
-  r <- rast(nrows = n, ncols = n, nlyrs = nt)
-  values(r) <- sample(c(0L, 1L), ncell(r) * nt, replace = TRUE)
+make_binary_raster <- function(size, n_times) {
+  r <- rast(nrows = size, ncols = size, nlyrs = n_times)
+  values(r) <- sample(c(0L, 1L), ncell(r) * n_times, replace = TRUE)
+  names(r) <- paste0("t", seq_len(n_times))
   r
 }
 
 time_metric <- function(r, metric, n_reps) {
-  times <- numeric(n_reps)
-
-  for (rep in seq_len(n_reps)) {
+  vapply(seq_len(n_reps), function(rep) {
     gc()
-    elapsed <- system.time({
-      result <- ts_raster_metric(r, metric)
-      invisible(result)
+    system.time({
+      invisible(ts_raster_metric(r, metric))
     })[["elapsed"]]
-
-    times[[rep]] <- elapsed
-  }
-
-  times
+  }, numeric(1))
 }
 
-benchmark_one_size <- function(n, nt, metrics, n_reps) {
-  message("Benchmarking ", n, " x ", n, " cells, ", nt, " layers")
-  r <- make_binary_raster(n, nt)
+benchmark_one_size <- function(size, n_times, metrics, n_reps) {
+  message("Benchmarking ", size, " x ", size, " cells, ", n_times, " layers")
+  r <- make_binary_raster(size, n_times)
 
-  do.call(rbind, lapply(metrics, function(metric) {
+  metric_results <- lapply(metrics, function(metric) {
     message("  ", metric)
-    times <- time_metric(r, metric, n_reps)
+    elapsed <- time_metric(r, metric, n_reps)
 
     data.frame(
-      nrow = n,
-      ncol = n,
+      nrow = size,
+      ncol = size,
       ncell = ncell(r),
-      nlyr = nt,
+      nlyr = n_times,
       metric = metric,
-      rep = seq_along(times),
-      elapsed_sec = as.numeric(times),
-      stringsAsFactors = FALSE
+      rep = seq_along(elapsed),
+      elapsed_sec = as.numeric(elapsed),
+      row.names = NULL
     )
-  }))
+  })
+
+  do.call(rbind, metric_results)
 }
 
-benchmark_results <- do.call(rbind, lapply(sizes, function(n) {
-  benchmark_one_size(n, nt, metrics, n_reps)
+summarize_results <- function(results) {
+  summary <- aggregate(
+    elapsed_sec ~ nrow + ncol + ncell + nlyr + metric,
+    data = results,
+    FUN = function(x) {
+      c(mean = mean(x), median = median(x), min = min(x), max = max(x))
+    }
+  )
+
+  summary <- do.call(data.frame, summary)
+  names(summary)[names(summary) == "elapsed_sec.mean"] <- "mean_sec"
+  names(summary)[names(summary) == "elapsed_sec.median"] <- "median_sec"
+  names(summary)[names(summary) == "elapsed_sec.min"] <- "min_sec"
+  names(summary)[names(summary) == "elapsed_sec.max"] <- "max_sec"
+
+  summary[order(summary$ncell, summary$metric), ]
+}
+
+benchmark_results <- do.call(rbind, lapply(raster_sizes, function(size) {
+  benchmark_one_size(size, n_times, metrics, n_reps)
 }))
 
-summary_results <- aggregate(
-  elapsed_sec ~ nrow + ncol + ncell + nlyr + metric,
-  data = benchmark_results,
-  FUN = function(x) c(mean = mean(x), median = median(x), min = min(x), max = max(x))
-)
-
-summary_results <- do.call(data.frame, summary_results)
-names(summary_results)[names(summary_results) == "elapsed_sec.mean"] <- "mean_sec"
-names(summary_results)[names(summary_results) == "elapsed_sec.median"] <- "median_sec"
-names(summary_results)[names(summary_results) == "elapsed_sec.min"] <- "min_sec"
-names(summary_results)[names(summary_results) == "elapsed_sec.max"] <- "max_sec"
-
-summary_results <- summary_results[order(summary_results$ncell, summary_results$metric), ]
-
+summary_results <- summarize_results(benchmark_results)
 print(summary_results, row.names = FALSE)
 
 # Uncomment to save detailed per-replicate timings.

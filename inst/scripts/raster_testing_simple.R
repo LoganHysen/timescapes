@@ -1,60 +1,66 @@
 library(terra)
 library(timescapemetrics)
 
-# dimensions
-nrow <- 100
-ncol <- 100
-nt   <- 20
-
-# create raster stack
-r <- rast(nrows = nrow, ncols = ncol, nlyrs = nt)
-
-# random binary habitat
-values(r) <- sample(c(0,1), ncell(r) * nt, replace = TRUE)
-
-r
-
-frag_map <- ts_raster_metric(r, "n_periods")
-
-
-x <- values(r)[1, ]   # first pixel
-x
-ts_metric(x, "n_periods")
-
-values(frag_map)[1]
-
+# Reproducible checks for raster metrics.
 
 set.seed(1)
-idx <- sample(1:ncell(r), 5)
 
-for (i in idx) {
-  x <- values(r)[i, ]
-  expected <- ts_metric(x, "n_periods")
-  observed <- values(frag_map)[i]
-  
-  print(c(expected, observed))
+n_rows <- 100L
+n_cols <- 100L
+n_times <- 20L
+
+make_binary_raster <- function(n_rows, n_cols, n_times) {
+  r <- rast(nrows = n_rows, ncols = n_cols, nlyrs = n_times)
+  values(r) <- sample(c(0L, 1L), ncell(r) * n_times, replace = TRUE)
+  names(r) <- paste0("t", seq_len(n_times))
+  r
 }
 
-system.time({
-  frag_map <- ts_raster_metric(r, "n_periods")
-})
+check_cells <- function(r, result, metric, cells) {
+  r_values <- values(r)
+  result_values <- values(result)
 
-edge_map <- ts_raster_metric(r, "edge_density")
+  checks <- lapply(cells, function(cell) {
+    x <- r_values[cell, ]
 
-plot(edge_map)
+    data.frame(
+      cell = cell,
+      expected = as.numeric(ts_metric(x, metric)),
+      observed = as.numeric(result_values[cell, 1]),
+      row.names = NULL
+    )
+  })
 
-# fake land cover (values 1–3)
-values(r) <- sample(1:3, ncell(r) * nt, replace = TRUE)
+  checks <- do.call(rbind, checks)
+  stopifnot(all.equal(checks$expected, checks$observed, check.attributes = FALSE))
+  checks
+}
 
-forest_map <- ts_raster_metric(r, "n_periods", classes = 1)
+message("Creating binary test raster")
+r <- make_binary_raster(n_rows, n_cols, n_times)
 
-plot(forest_map)
-forest_map
+message("Calculating n_periods")
+n_periods_map <- ts_raster_metric(r, "n_periods")
 
-r_big <- rast(nrows = 200, ncols = 200, nlyrs = 30)
+sample_cells <- sample.int(ncell(r), 5L)
+n_periods_checks <- check_cells(r, n_periods_map, "n_periods", sample_cells)
+print(n_periods_checks, row.names = FALSE)
 
-values(r_big) <- sample(c(0,1), ncell(r_big) * 30, replace = TRUE)
+message("Calculating edge_density")
+edge_density_map <- ts_raster_metric(r, "edge_density")
 
-system.time({
-  ts_raster_metric(r_big, "n_periods")
-})
+message("Calculating class-specific n_periods")
+land_cover <- r
+values(land_cover) <- sample(1:3, ncell(land_cover) * n_times, replace = TRUE)
+class_1_map <- ts_raster_metric(land_cover, "n_periods", classes = 1L)
+
+message("Timing a larger n_periods run")
+r_big <- make_binary_raster(n_rows = 200L, n_cols = 200L, n_times = 30L)
+print(system.time({
+  invisible(ts_raster_metric(r_big, "n_periods"))
+}))
+
+# Uncomment for quick visual inspection.
+# plot(n_periods_map)
+# plot(edge_density_map)
+# plot(class_1_map)

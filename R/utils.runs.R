@@ -5,6 +5,17 @@
   any(!(x_non_na %in% c(0, 1)))
 }
 
+.ts_run_lengths <- function(x, value) {
+  x <- as.integer(x)
+  is_value <- !is.na(x) & x == value
+
+  changes <- diff(c(FALSE, is_value, FALSE))
+  starts <- which(changes == 1L)
+  ends <- which(changes == -1L) - 1L
+
+  as.integer(ends - starts + 1L)
+}
+
 get_runs <- function(x) {
   x <- as.integer(x)
 

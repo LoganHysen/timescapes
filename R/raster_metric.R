@@ -48,7 +48,7 @@ ts_raster_metric <- function(r, metric, classes = NULL, ...) {
 
   calculate_metric <- function(x) {
     if (length(dots) == 0L) {
-      return(as.numeric(ts_metric(x, metric)))
+      return(as.numeric(metric_fun(x)))
     }
 
     as.numeric(do.call(metric_fun, c(list(x), dots)))
@@ -60,7 +60,7 @@ ts_raster_metric <- function(r, metric, classes = NULL, ...) {
     }
 
     vapply(classes, function(class) {
-      x_class <- ifelse(is.na(x), NA_integer_, as.integer(x == class))
+      x_class <- as.integer(x == class)
       calculate_metric(x_class)
     }, numeric(1))
   })
