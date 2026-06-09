@@ -1,4 +1,4 @@
-# Script Goal: Benchmark Timescape metric calculation on real data 
+# Script Goal: Benchmark Timescape metric calculation on real data
 # from the Bear River Migratory Bird Refuge.
 
 devtools::load_all()

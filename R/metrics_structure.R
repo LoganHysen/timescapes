@@ -21,10 +21,9 @@ ts_n_periods <- function(x) {
 #' @export
 ts_gap_mean <- function(x) {
   if (.ts_invalid_binary(x)) return(NA_real_)
-  rr <- get_runs(x)
-  gaps <- rr$gap_runs
-  if (is.null(gaps) || nrow(gaps) == 0) return(0)
-  mean(gaps$end - gaps$start + 1)
+  gaps <- .ts_run_lengths(x, 0L)
+  if (length(gaps) == 0L) return(0)
+  mean(gaps)
 }
 
 #' Maximum gap length
@@ -34,10 +33,9 @@ ts_gap_mean <- function(x) {
 #' @export
 ts_gap_max <- function(x) {
   if (.ts_invalid_binary(x)) return(NA_real_)
-  rr <- get_runs(x)
-  gaps <- rr$gap_runs
-  if (is.null(gaps) || nrow(gaps) == 0) return(0L)
-  as.integer(max(gaps$end - gaps$start + 1))
+  gaps <- .ts_run_lengths(x, 0L)
+  if (length(gaps) == 0L) return(0L)
+  as.integer(max(gaps))
 }
 
 #' Duration variability (SD of run lengths)
@@ -47,10 +45,9 @@ ts_gap_max <- function(x) {
 #' @export
 ts_duration_sd <- function(x) {
   if (.ts_invalid_binary(x)) return(NA_real_)
-  rr <- get_runs(x)
-  runs <- rr$one_runs
-  if (is.null(runs) || nrow(runs) < 2) return(0)
-  sd(runs$end - runs$start + 1)
+  runs <- .ts_run_lengths(x, 1L)
+  if (length(runs) < 2L) return(0)
+  sd(runs)
 }
 
 #' Core time index
@@ -61,11 +58,9 @@ ts_duration_sd <- function(x) {
 #' @export
 ts_core_time_index <- function(x, core_buffer = 1L) {
   if (.ts_invalid_binary(x)) return(NA_real_)
-  rr <- get_runs(x)
-  runs <- rr$one_runs
-  if (is.null(runs)) return(0)
+  lengths <- .ts_run_lengths(x, 1L)
+  if (length(lengths) == 0L) return(0)
 
-  lengths <- runs$end - runs$start + 1
   core_lengths <- pmax(lengths - 2L * core_buffer, 0)
 
   total <- sum(x, na.rm = TRUE)
@@ -82,10 +77,8 @@ ts_core_time_index <- function(x, core_buffer = 1L) {
 #' @export
 ts_n_core_periods <- function(x, core_buffer = 1L) {
   if (.ts_invalid_binary(x)) return(NA_real_)
-  rr <- get_runs(x)
-  runs <- rr$one_runs
-  if (is.null(runs)) return(0L)
+  lengths <- .ts_run_lengths(x, 1L)
+  if (length(lengths) == 0L) return(0L)
 
-  lengths <- runs$end - runs$start + 1
   as.integer(sum(lengths > 2L * core_buffer))
 }
