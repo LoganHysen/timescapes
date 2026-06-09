@@ -1,7 +1,7 @@
 library(terra)
 library(timescapemetrics)
 
-# Reproducible smoke checks for raster metric behavior.
+# Reproducible checks for raster metrics.
 
 set.seed(1)
 
@@ -60,7 +60,7 @@ print(system.time({
   invisible(ts_raster_metric(r_big, "n_periods"))
 }))
 
-# Uncomment for quick visual inspection in an interactive session.
+# Uncomment for quick visual inspection.
 # plot(n_periods_map)
 # plot(edge_density_map)
 # plot(class_1_map)
