@@ -109,7 +109,7 @@ summaries.
 period_values <- values(water_periods, dataframe = TRUE, na.rm = TRUE)
 
 head(period_values)
-table(period_values$n_periods)
+table(period_values$`lyr.1`)
 ```
 
 ## Compare several metrics
