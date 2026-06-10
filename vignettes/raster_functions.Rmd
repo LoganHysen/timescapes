@@ -1,0 +1,180 @@
+---
+title: "Raster workflows with timescapemetrics"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Raster workflows with timescapemetrics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  cache = TRUE,
+  fig.width = 7,
+  fig.height = 4
+)
+```
+
+```{r load-packages}
+library(timescapemetrics)
+library(terra)
+```
+
+## Overview
+
+Raster layers can represent a time series when each layer stores the state of a
+cell at one time step. In `timescapemetrics`, `ts_raster_metric()` applies a
+temporal metric to each raster cell, treating the layers as ordered time steps.
+
+This vignette uses a small subset of the Bear River Migratory Bird Refuge in Utah as an example 
+dataset included with the package. The raster is binary: `1` indicates water presence and `0` indicates
+water absence. The raster was derived from Dynamic World land-cover data (https://www.dynamicworld.app/).
+The example also includes a vector layer of the refuge boundary for visualization.
+
+## Load the built-in raster dataset
+
+The example data are stored as packed `terra` objects so they can be included in
+the package. Use `terra::rast()` and `terra::vect()` to restore them before
+analysis.
+
+```{r load-built-in-data}
+data(gsl_bear_river_water)
+data(gsl_bear_river_refuge)
+
+water <- rast(gsl_bear_river_water)
+refuge <- vect(gsl_bear_river_refuge)
+
+water
+refuge
+```
+
+Each layer in `water` is one time step. The number of layers is therefore the
+length of the time series available for every raster cell.
+
+```{r inspect-raster}
+c(
+  rows = nrow(water),
+  columns = ncol(water),
+  cells = ncell(water),
+  time_steps = nlyr(water)
+)
+```
+
+The first layer gives a quick view of the spatial footprint of water presence at
+one time step.
+
+```{r plot-input}
+plot(water[[1]], main = "Water presence at the first time step")
+plot(refuge, add = TRUE)
+```
+
+## Calculate a raster metric
+
+Use `ts_raster_metric()` with a metric name from `ts_list_metrics()`. Here,
+`n_periods` counts the number of distinct water-presence periods for each cell
+through the layer stack.
+
+```{r calculate-n-periods}
+water_periods <- ts_raster_metric(water, metric = "n_periods")
+water_periods
+```
+
+```{r plot-n-periods}
+plot(water_periods, main = "Number of water-presence periods")
+plot(refuge, add = TRUE)
+```
+
+Cells with larger values switched into and out of water presence more often
+during the observed time series.
+
+## Summarize metric rasters
+
+Metric rasters can be summarized with standard `terra` tools. For example,
+`terra::global()` calculates summary statistics over all cells.
+
+```{r summarize-n-periods}
+global(
+  water_periods,
+  fun = c("mean", "min", "max"),
+  na.rm = TRUE
+)
+```
+
+The raster values can also be extracted as a data frame for plotting or tabular
+summaries.
+
+```{r n-periods-frequency}
+period_values <- values(water_periods, dataframe = TRUE, na.rm = TRUE)
+
+head(period_values)
+table(period_values$n_periods)
+```
+
+## Compare several metrics
+
+Different metrics emphasize different aspects of temporal structure. The
+examples below calculate the total number of water time steps and the temporal
+aggregation of water presence for each cell.
+
+```{r calculate-several-metrics}
+water_total_time <- ts_raster_metric(water, metric = "total_time")
+water_aggregation <- ts_raster_metric(water, metric = "aggregation")
+
+metric_summary <- rbind(
+  total_time = global(water_total_time, "mean", na.rm = TRUE),
+  n_periods = global(water_periods, "mean", na.rm = TRUE),
+  aggregation = global(water_aggregation, "mean", na.rm = TRUE)
+)
+
+metric_summary
+```
+
+```{r plot-several-metrics}
+plot(
+  c(water_total_time, water_periods, water_aggregation),
+  main = c("Total water time", "Water periods", "Temporal aggregation")
+)
+plot(refuge, add = TRUE)
+```
+
+`total_time` describes how often water was present. `n_periods` describes how
+many separate periods of water presence occurred. `aggregation` describes how
+similar adjacent time steps were within each cell's time series.
+
+## Optional class-specific metrics
+
+For categorical rasters, pass `classes` to calculate the same metric separately
+for one or more classes. This small in-memory example uses three land-cover
+classes across four time steps.
+
+```{r class-specific-example}
+classes_raster <- rast(nrows = 2, ncols = 3, nlyrs = 4)
+values(classes_raster) <- matrix(
+  c(
+    1, 1, 2, 2,
+    1, 2, 2, 3,
+    3, 3, 2, 1,
+    2, 2, 1, 1,
+    3, 1, 1, 1,
+    2, 3, 3, 3
+  ),
+  nrow = ncell(classes_raster),
+  byrow = TRUE
+)
+
+class_periods <- ts_raster_metric(
+  classes_raster,
+  metric = "n_periods",
+  classes = c(1, 2, 3)
+)
+
+class_periods
+values(class_periods)
+```
+
+The result has one layer per requested class. Each layer stores the metric value
+after converting that class to presence and all other classes to absence.
+
+
