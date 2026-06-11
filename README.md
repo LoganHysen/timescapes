@@ -83,8 +83,9 @@ Additional scripts are available in `inst/scripts/`:
 
 - `demo.R`: small vector examples
 - `raster_testing_simple.R`: simple raster examples
-- `raster_testing_multiclass.R`: categorical raster examples
+- `realistic_landscape_test.R`: categorical raster example using a real landscape
 - `raster_benchmark.R`: basic timing benchmark for raster metrics
+- `real_data_benchmark.R `: timing benchmark for raster metrics on realistic landscape
 
 ## Development
 
