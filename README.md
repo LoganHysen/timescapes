@@ -85,7 +85,7 @@ receives an `NA` result.
 
 ## Vignettes
 
-
+- [Getting Started](https://github.com/LoganHysen/timescapes/blob/dev/vignettes/getting-started.Rmd)
 
 ## Development
 
