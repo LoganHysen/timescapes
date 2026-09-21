@@ -1,102 +1,83 @@
-# timescape
+# timescapes
 
-`timescape` is an R package for calculating simple temporal landscape
-metrics from binary time series and raster time stacks.
-
-The package is currently in active development. It is ready to experiment with,
-but the metric definitions and function names may still change.
+`timescapes` calculates interpretable metrics for binary conditions observed
+through time. A `1` means that a condition is present and a `0` means that it
+is absent. The same metrics can be applied to a single vector or independently
+to every cell in a raster time series.
 
 ## Installation
 
-Install the development version from GitHub:
+After the first CRAN release, install the package with:
 
 ```r
-# install.packages("remotes")
-remotes::install_github("LoganHysen/timescape")
+install.packages("timescapes")
 ```
 
-Or, if you have cloned the repository locally:
+## Vector metrics
+
+Calculate one metric by supplying an exact name from `ts_list_metrics()`:
 
 ```r
-# install.packages("devtools")
-devtools::load_all()
-```
-
-## Basic Use
-
-Timescape metrics are calculated from binary time series, where `1` indicates
-presence and `0` indicates absence.
-
-```r
-library(timescape)
+library(timescapes)
 
 x <- c(1, 1, 0, 0, 1, 1, 1, 0)
 
-ts_metrics(x)
+ts_list_metrics()
 ts_metric(x, "n_periods")
 ts_metric(x, "gap_mean")
+ts_metric(x, "core_time_index", core_buffer = 1)
 ```
 
-Available metrics include:
+The available metrics are:
 
-- `total_time`: total number of time steps with presence
-- `n_periods`: number of presence periods
-- `gap_mean`: mean absence gap length
-- `gap_max`: maximum absence gap length
-- `duration_sd`: standard deviation of presence-period durations
-- `edge_density`: rate of temporal transitions between `0` and `1`
-- `autocorr`: lag-1 temporal autocorrelation
-- `aggregation`: proportion of neighboring time steps with the same value
+- `total_time`: number of time steps with presence
+- `n_periods`: number of distinct presence periods
+- `gap_mean`: mean length of absence periods
+- `gap_max`: maximum length of an absence period
+- `duration_sd`: variability in presence-period lengths
+- `edge_density`: proportion of adjacent steps that change state
+- `autocorr`: lag-1 Pearson autocorrelation
+- `aggregation`: proportion of adjacent steps with the same state
 - `core_time_index`: proportion of presence time away from period edges
-- `n_core_periods`: number of presence periods longer than the core buffer
+- `n_core_periods`: number of presence periods containing core time
 
-## Raster Time Stacks
+Metric names must match exactly. Inputs must be non-empty numeric vectors
+containing only `0`, `1`, or `NA`. If any time step is missing, the metric is
+`NA`.
 
-Raster layers can be treated as ordered time steps. `ts_raster_metric()` applies
-a metric to each cell through time.
+## Raster metrics
+
+For a `terra::SpatRaster`, layers are treated as ordered time steps and the
+metric is calculated independently for every cell:
 
 ```r
 library(terra)
-library(timescape)
+library(timescapes)
 
-r <- rast(nrows = 10, ncols = 10, nlyrs = 5)
-values(r) <- sample(c(0, 1), ncell(r) * nlyr(r), replace = TRUE)
+r <- rast(nrows = 2, ncols = 2, nlyrs = 4)
+values(r) <- matrix(
+  c(
+    1, 1, 0, 1,
+    0, 0, 0, 0,
+    1, 0, 1, 0,
+    1, 1, 1, 1
+  ),
+  nrow = ncell(r),
+  byrow = TRUE
+)
 
-n_periods_map <- ts_raster_metric(r, "n_periods")
-plot(n_periods_map)
+periods <- ts_raster_metric(r, "n_periods")
+plot(periods)
 ```
 
-For categorical rasters, pass one or more classes. Each class is converted to a
-binary presence/absence series before the metric is calculated.
-
-```r
-r_classes <- rast(nrows = 10, ncols = 10, nlyrs = 5)
-values(r_classes) <- sample(1:3, ncell(r_classes) * nlyr(r_classes), replace = TRUE)
-
-class_maps <- ts_raster_metric(r_classes, "n_periods", classes = c(1, 2, 3))
-plot(class_maps)
-```
-
-## Example Scripts
-
-Additional scripts are available in `inst/scripts/`:
-
-- `demo.R`: small vector examples
-- `raster_testing_simple.R`: simple raster examples
-- `realistic_landscape_test.R`: categorical raster example using a real landscape
-- `raster_benchmark.R`: basic timing benchmark for raster metrics
-- `real_data_benchmark.R `: timing benchmark for raster metrics on realistic landscape
+Raster values must also be binary. A cell with one or more missing time steps
+receives an `NA` result.
 
 ## Development
 
-Run the test suite with:
+Run the tests and CRAN checks with:
 
 ```r
-devtools::test()
-```
-
-Run a package check with:
-
-```r
-devtools::check()
+testthat::test_local()
+devtools::check(args = "--as-cran")
 ```

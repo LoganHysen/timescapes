@@ -2,18 +2,57 @@
 % Please edit documentation in R/registry.R
 \name{ts_metric}
 \alias{ts_metric}
-\title{Calculate a single named timescape metric}
+\title{Calculate a binary timescape metric}
 \usage{
-ts_metric(x, metric)
+ts_metric(x, metric, ...)
 }
 \arguments{
-\item{x}{Binary time series (0/1)}
+\item{x}{A non-empty numeric vector containing only \code{0}, \code{1}, or \code{NA}.}
 
-\item{metric}{Metric name}
+\item{metric}{One exact metric name returned by \code{\link[=ts_list_metrics]{ts_list_metrics()}}.}
+
+\item{...}{Named metric-specific arguments. \code{core_time_index} and
+\code{n_core_periods} accept \code{core_buffer}, a non-negative whole number with a
+default of \code{1}.}
 }
 \value{
-Numeric value
+One numeric value.
 }
 \description{
-Calculate a single named timescape metric
+Calculates one named metric for a numeric vector in which \code{1} means that a
+condition is present and \code{0} means that it is absent. Metric names must match
+\code{\link[=ts_list_metrics]{ts_list_metrics()}} exactly. If \code{x} contains any missing value, the result is
+\code{NA_real_}.
+}
+\section{Metrics}{
+
+Let \code{n} be the number of time steps, let an occupied period be a maximal run
+of ones, and let a gap be any maximal run of zeros, including leading and
+trailing runs.
+\itemize{
+\item \code{total_time}: sum of the series; range 0 to \code{n}.
+\item \code{n_periods}: number of occupied periods; range 0 to \code{ceiling(n / 2)}.
+\item \code{gap_mean}: arithmetic mean of gap lengths, or 0 when no gaps occur.
+\item \code{gap_max}: maximum gap length, or 0 when no gaps occur.
+\item \code{duration_sd}: sample standard deviation of occupied-period lengths, or 0
+when fewer than two occupied periods occur.
+\item \code{edge_density}: number of changes between adjacent time steps divided by
+\code{n - 1}; returns 0 for a one-step series.
+\item \code{autocorr}: Pearson correlation between steps 1 through \code{n - 1} and steps
+2 through \code{n}; returns \code{NA} when the correlation is undefined.
+\item \code{aggregation}: proportion of adjacent time-step pairs that are equal;
+returns 0 for a one-step series.
+\item \code{core_time_index}: proportion of occupied time remaining after removing
+\code{core_buffer} steps from both ends of every occupied period.
+\item \code{n_core_periods}: number of occupied periods longer than twice
+\code{core_buffer}.
+}
+}
+
+\examples{
+x <- c(1, 1, 0, 0, 1, 1, 1, 0)
+ts_metric(x, "n_periods")
+ts_metric(x, "gap_mean")
+ts_metric(x, "core_time_index", core_buffer = 1)
+
 }

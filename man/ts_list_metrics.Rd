@@ -2,13 +2,18 @@
 % Please edit documentation in R/registry.R
 \name{ts_list_metrics}
 \alias{ts_list_metrics}
-\title{List available timescape metrics}
+\title{List available binary timescape metrics}
 \usage{
 ts_list_metrics()
 }
 \value{
-Character vector of metric names
+A character vector of exact metric names accepted by \code{\link[=ts_metric]{ts_metric()}}
+and \code{\link[=ts_raster_metric]{ts_raster_metric()}}.
 }
 \description{
-List available timescape metrics
+List available binary timescape metrics
+}
+\examples{
+ts_list_metrics()
+
 }
