@@ -47,7 +47,7 @@ axis(2, at = c(0, 1), labels = c("No", "Yes"), las = 1)
 Now, calculate a few metrics using ts_metric(), selecting from the available
 list of metrics found by using ts_list_metrics().
 
-``` {r vector}
+``` {r metrics}
 ts_list_metrics()
 ts_metric(x, "total_time")
 ts_metric(x, "n_periods")
