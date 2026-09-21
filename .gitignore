@@ -53,3 +53,6 @@ rsconnect/
 
 # testing outputs
 outputs/
+
+data-raw/bear-river-reference/*.rda
+docs

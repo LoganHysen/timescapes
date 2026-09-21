@@ -1,24 +1,27 @@
-Package: timescapemetrics
-Title: Timescape Metrics R Package
-Version: 0.0.0.9000
-Authors@R: 
-    c(person("Logan", "Hysen", , "hysenlog@msu.edu", role = c("cre")),
-    person("Ho Yi", "Wan", , "wanhoyi@ufl.edu", role = c("aut"))
+Package: timescapes
+Title: Quantifying Temporal Structure Across Landscapes
+Version: 0.1.0
+Authors@R:
+    c(
+      person("Logan", "Hysen", email = "hysenlog@msu.edu",
+             role = c("aut", "cre", "cph")),
+      person("Ho Yi", "Wan", email = "wanhoyi@ufl.edu",
+             role = c("aut", "cph"))
     )
-Description: This package allows users to calculate ecological timescape
-    metrics
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
-Authors: Logan Hysen, Ho Yi Wan
+Description: Calculates interpretable mathematical summaries of binary
+    conditions observed through time. Metrics can be calculated for a single
+    binary vector or independently for every cell in a raster time series.
+License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 Imports:
     terra
-Suggests: 
+Suggests:
     knitr,
     rmarkdown,
     testthat (>= 3.0.0)
 VignetteBuilder: knitr
 Config/testthat/edition: 3
+Config/roxygen2/version: 8.1.0
+URL: https://github.com/LoganHysen/timescapes, https://loganhysen.github.io/timescapes/
+BugReports: https://github.com/LoganHysen/timescapes/issues

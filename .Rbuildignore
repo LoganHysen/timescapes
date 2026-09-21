@@ -1,3 +1,9 @@
 ^timescapemetrics\.Rproj$
 ^\.Rproj\.user$
 ^data-raw$
+^cran-comments\.md$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.github$
+^CITATION\.cff$
