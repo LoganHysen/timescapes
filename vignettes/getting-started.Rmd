@@ -17,10 +17,37 @@ returned by `ts_list_metrics()` exactly.
 
 ## A binary vector
 
+Here is a small example with two periods of the presence of some condition separated by
+the absence of that condition. Each time step in this case represents a year, so the first two years 
+have the condition, then two years of absence, followed by three 
+more years of presence and one year of absence.
+
 ```{r vector}
 library(timescapes)
 
 x <- c(1, 1, 0, 0, 1, 1, 1, 0)
+
+```
+
+The values can be visualized as a simple timeline.
+
+```{r plot-example-series}
+plot(
+  seq_along(x), x,
+  type = "s",
+  ylim = c(-0.1, 1.1),
+  xlab = "Time step",
+  ylab = "Habitat available",
+  yaxt = "n",
+  main = "Binary habitat availability through time"
+)
+axis(2, at = c(0, 1), labels = c("No", "Yes"), las = 1)
+```
+
+Now, calculate a few metrics using ts_metric(), selecting from the available
+list of metrics found by using ts_list_metrics().
+
+``` {r vector}
 ts_list_metrics()
 ts_metric(x, "total_time")
 ts_metric(x, "n_periods")
