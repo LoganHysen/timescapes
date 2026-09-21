@@ -1,3 +1,8 @@
+<!-- badges: start -->
+  [![R-CMD-check](https://github.com/LoganHysen/timescapes/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/LoganHysen/timescapes/actions/workflows/R-CMD-check.yaml)
+  <!-- badges: end -->
+
+
 # timescapes
 
 `timescapes` calculates interpretable metrics for binary conditions observed

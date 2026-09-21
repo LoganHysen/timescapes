@@ -55,3 +55,4 @@ rsconnect/
 outputs/
 
 data-raw/bear-river-reference/*.rda
+docs

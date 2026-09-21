@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use timescapes in your research, please cite it as below."
+type: software
+title: "timescapes: Quantifying Temporal Structure Across Landscapes"
+authors:
+  - family-names: "Hysen"
+    given-names: "Logan"
+    email: "hysenlog@msu.edu"
+repository-code: "https://github.com/LoganHysen/timescapes"
+license: "MIT"
+version: 0.1.0
+keywords:
+  - landscape ecology
+  - temporal ecology
+  - temporal fragmentation
+  - time series
+  - spatial ecology
+abstract: >
+  An R package for quantifying and visualizing temporal structure
+  across landscapes using ecological timescapes.
