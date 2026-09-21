@@ -7,11 +7,21 @@ to every cell in a raster time series.
 
 ## Installation
 
-After the first CRAN release, install the package with:
+Install the stable version via CRAN with:
 
 ```r
 install.packages("timescapes")
 ```
+
+You can also install the development version from GitHub:
+
+```r
+remotes::install_github("LoganHysen/timescapes")
+```
+
+## Overview
+
+This package includes
 
 ## Vector metrics
 
@@ -73,6 +83,10 @@ plot(periods)
 Raster values must also be binary. A cell with one or more missing time steps
 receives an `NA` result.
 
+## Vignettes
+
+
+
 ## Development
 
 Run the tests and CRAN checks with:
@@ -81,3 +95,19 @@ Run the tests and CRAN checks with:
 testthat::test_local()
 devtools::check(args = "--as-cran")
 ```
+
+## License
+
+This package is licensed under the **MIT License** (see the [LICENSE](LICENSE) file).
+
+## Citation
+
+If you use `timescapes` in published work, please cite it as:
+
+TBD
+
+## Authors
+
+Logan Hysen: hysenlog@msu.edu
+Ho Yi Wan: hoyiwan@gmail.com
+
