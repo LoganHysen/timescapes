@@ -19,10 +19,6 @@ You can also install the development version from GitHub:
 remotes::install_github("LoganHysen/timescapes")
 ```
 
-## Overview
-
-This package includes
-
 ## Vector metrics
 
 Calculate one metric by supplying an exact name from `ts_list_metrics()`:
