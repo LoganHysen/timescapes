@@ -44,3 +44,13 @@ test_that("raster inputs use binary validation", {
   terra::values(r) <- c(0, 0.5, 1)
   expect_error(ts_raster_metric(r, "total_time"), "only 0, 1")
 })
+
+test_that("a single time layer is calculated independently for every cell", {
+  r <- terra::rast(nrows = 1, ncols = 3, nlyrs = 1)
+  terra::values(r) <- c(1, 0, NA)
+
+  result <- ts_raster_metric(r, "total_time")
+  expect_s4_class(result, "SpatRaster")
+  expect_equal(terra::nlyr(result), 1)
+  expect_equal(unname(terra::values(result)[, 1]), c(1, 0, NA))
+})
