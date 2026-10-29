@@ -5,6 +5,7 @@
 library(terra)
 library(timescapes)
 
+# Vector ------------------
 # One location over eight time steps. Presence runs: 3, 1.
 # Absence runs (including the ends): 1, 1, 2.
 x <- c(0, 1, 1, 1, 0, 1, 0, 0)
@@ -70,6 +71,8 @@ expected <- 1
 stopifnot(actual == expected)
 cat("PASS vector: n_core_periods\n")
 
+
+# Raster ---------------
 # One 2 x 2 raster with eight ordered time layers. Each of its four pixels has
 # a different history, listed in row-major order:
 # top left: x; top right: always present;
