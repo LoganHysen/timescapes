@@ -99,7 +99,7 @@ This package is licensed under the **MIT License** (see the [LICENSE](LICENSE) f
 
 If you use `timescapes` in published work, please cite it as:
 
-Wan, H. Y. (2025). It’s about time: Temporal fragmentation and metrics for habitat change. *Landscape Ecology*, **40**, 226. https://doi.org/10.1007/s10980-025-02252-4
+Hysen L, Mannam RR, Moturi, A, Wan HY (2026). timescapes: Quantifying temporal structure across landscapes (Version 0.1.0) [R package]. https://github.com/LoganHysen/timescapes
 
 ## Authors
 

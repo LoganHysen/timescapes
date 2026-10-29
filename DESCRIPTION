@@ -5,6 +5,10 @@ Authors@R:
     c(
       person("Logan", "Hysen", email = "hysenlog@msu.edu",
              role = c("aut", "cre", "cph")),
+      person("Ramcharan Reddy", "Mannam", email = "ramcharan.mannam@ufl.edu",
+             role = c("aut", "cph")),
+      person("Abhiram", "Moturi", email = "ab.moturi@ufl.edu",
+             role = c("aut", "cph")),
       person("Ho Yi", "Wan", email = "wanhoyi@ufl.edu",
              role = c("aut", "cph"))
     )

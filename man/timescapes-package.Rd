@@ -24,6 +24,8 @@ Useful links:
 Authors:
 \itemize{
   \item Logan Hysen \email{hysenlog@msu.edu} [copyright holder]
+  \item Ramcharan Reddy Mannam \email{ramcharan.mannam@ufl.edu} [copyright holder]
+  \item Abhiram Moturi \email{ab.moturi@ufl.edu} [copyright holder]
   \item Ho Yi Wan \email{wanhoyi@ufl.edu} [copyright holder]
 }
 
