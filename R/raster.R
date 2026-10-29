@@ -37,6 +37,14 @@ ts_raster_metric <- function(r, metric, ...) {
   resolved <- .ts_resolve_metric(metric, list(...))
   calculate_cell <- .ts_make_calculator(resolved)
 
+  # terra may pass several cells together when the input has only one layer.
+  if (terra::nlyr(r) == 1L) {
+    scalar_cell <- calculate_cell
+    calculate_cell <- function(x) {
+      vapply(as.numeric(x), scalar_cell, numeric(1))
+    }
+  }
+
   result <- terra::app(r, fun = calculate_cell)
   names(result) <- resolved$name
   result
