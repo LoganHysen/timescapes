@@ -20,4 +20,8 @@ Authors:
 
 - Logan Hysen <hysenlog@msu.edu> \[copyright holder\]
 
+- Ramcharan Reddy Mannam <ramcharan.mannam@ufl.edu> \[copyright holder\]
+
+- Abhiram Moturi <ab.moturi@ufl.edu> \[copyright holder\]
+
 - Ho Yi Wan <wanhoyi@ufl.edu> \[copyright holder\]

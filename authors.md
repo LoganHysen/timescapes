@@ -4,6 +4,10 @@
 
 - **Logan Hysen**. Author, maintainer, copyright holder.
 
+- **Ramcharan Reddy Mannam**. Author, copyright holder.
+
+- **Abhiram Moturi**. Author, copyright holder.
+
 - **Ho Yi Wan**. Author, copyright holder.
 
 ## Citation
