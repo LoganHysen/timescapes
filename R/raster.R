@@ -7,7 +7,10 @@
 #'
 #' @param r A `terra::SpatRaster` whose layers are ordered time steps.
 #' @param metric One exact metric name returned by [ts_list_metrics()].
-#' @param ... Named metric-specific arguments passed to [ts_metric()].
+#' @param ... Named metric-specific arguments passed to [ts_metric()], including
+#'   `include_boundary_gaps = TRUE` for gap metrics and a positive whole number
+#'   `min_core_period` for core metrics. Omitting `min_core_period` uses 15 time
+#'   steps and warns once per raster call, rather than once per cell.
 #'
 #' @return A one-layer `terra::SpatRaster` containing the selected metric.
 #'

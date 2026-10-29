@@ -42,8 +42,8 @@ with a separate call to `ts_metric()`:
 | `edge_density` | `4/7` | Four changes among seven adjacent pairs. |
 | `autocorr` | `-1/6` | Pearson correlation of the two lagged seven-step vectors. Each has four ones; two positions have ones in both. |
 | `aggregation` | `3/7` | Three equal adjacent pairs among seven. |
-| `core_time_index`, buffer `1` | `1/4` | Run `111` retains one of four present steps after trimming both ends. |
-| `n_core_periods`, buffer `1` | `1` | Only run `111` is longer than twice the buffer. |
+| `core_time_index`, threshold `3` | `3/4` | The full run `111` qualifies, giving three of four present steps. |
+| `n_core_periods`, threshold `3` | `1` | Only run `111` reaches three time steps. |
 
 For `autocorr`, the binary Pearson-correlation calculation is
 `(7×2 - 4×4) / sqrt((4×3)(4×3)) = -1/6`.
@@ -61,7 +61,7 @@ The 2×2 raster has eight time layers. Each pixel has a different history:
 
 The script constructs this raster and checks the full 2×2 result
 for `total_time`, `n_periods`, `gap_mean`, `edge_density`, and
-`core_time_index` with buffer `2`. The table gives the hand-calculated value
+`core_time_index` with threshold `4`. The table gives the hand-calculated value
 for each pixel in the output map:
 
 | Metric | Top left | Top right | Bottom left | Bottom right |
@@ -70,11 +70,11 @@ for each pixel in the output map:
 | `n_periods` | `2` | `1` | `0` | `NA` |
 | `gap_mean` | `4/3` | `0` | `8` | `NA` |
 | `edge_density` | `4/7` | `0` | `0` | `NA` |
-| `core_time_index`, buffer `2` | `0` | `1/2` | `0` | `NA` |
+| `core_time_index`, threshold `4` | `0` | `1` | `0` | `NA` |
 
 The script also checks that the first result is a one-layer, 2×2
 `terra::SpatRaster`. More edge cases and expected errors belong in the package's
-`tests/testthat/` suite, which you can feel free to explore. All these tests pass on my machine.
+`tests/testthat/` suite, which you can feel free to explore. The script additionally checks interior gaps and core-period counts.
 
 Please independently check the math in the function calculations (in the `R/` directory) against each equation in Wan, 2025 (Table 1) 
 and review the implementation for clearer organization or easy-to-make performance improvements. The package vignette provides a separate

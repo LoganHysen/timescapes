@@ -54,11 +54,24 @@ ts_metric(x, "n_periods")
 ts_metric(x, "gap_mean")
 ```
 
-The two core-time metrics accept a non-negative whole-number buffer:
+
+Time steps are unitless ordered observations with a duration defined by the user.
+Gap metrics include leading and trailing absence runs by default. Set
+`include_boundary_gaps = FALSE` to count only gaps between presence periods;
+no qualifying gaps returns 0, including for an all-absence series.
+
+For core metrics, supply `min_core_period`, a positive whole number of time
+steps. A presence run qualifies when its full length is at least this threshold.
+`core_time_index` divides the total length of qualifying runs by total presence
+time (0 if there is no presence); `n_core_periods` counts qualifying runs.
+Omitting the threshold uses 15 time steps and issues one warning per vector or
+raster call. The former `core_buffer` argument is no longer accepted.
+
+For example:
 
 ```{r core}
-ts_metric(x, "core_time_index", core_buffer = 1)
-ts_metric(x, "n_core_periods", core_buffer = 1)
+ts_metric(x, "core_time_index", min_core_period = 3)
+ts_metric(x, "n_core_periods", min_core_period = 3)
 ```
 
 Every observed value must be `0` or `1`. A series containing a missing time
@@ -96,3 +109,7 @@ values(periods)
 The result is a one-layer raster with the same geometry as the input. Raster
 cells containing missing or non-binary values follow the same validation rules
 as vector inputs.
+
+## Citation
+
+Wan, H. Y. (2025). It’s about time: Temporal fragmentation and metrics for habitat change. *Landscape Ecology*, 40, 226. <https://doi.org/10.1007/s10980-025-02252-4>

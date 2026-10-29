@@ -18,3 +18,14 @@ keywords:
 abstract: >
   An R package for quantifying and visualizing temporal structure
   across landscapes using ecological timescapes.
+preferred-citation:
+  type: article
+  authors:
+    - family-names: "Wan"
+      given-names: "Ho Yi"
+  title: "It’s about time: Temporal fragmentation and metrics for habitat change"
+  journal: "Landscape Ecology"
+  volume: "40"
+  start: "226"
+  year: 2025
+  doi: "10.1007/s10980-025-02252-4"

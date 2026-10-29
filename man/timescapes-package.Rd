@@ -10,6 +10,14 @@
 time, either for one vector or independently for every cell in a raster time
 series.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/LoganHysen/timescapes}
+  \item Report bugs at \url{https://github.com/LoganHysen/timescapes/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Logan Hysen \email{hysenlog@msu.edu} [copyright holder]
 

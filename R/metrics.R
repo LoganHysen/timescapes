@@ -7,20 +7,20 @@
   as.integer(ends - starts + 1L)
 }
 
-.ts_validate_core_buffer <- function(core_buffer) {
+.ts_validate_min_core_period <- function(min_core_period) {
   if (
-    !is.numeric(core_buffer) ||
-      length(core_buffer) != 1L ||
-      is.na(core_buffer) ||
-      !is.finite(core_buffer) ||
-      core_buffer < 0 ||
-      core_buffer > .Machine$integer.max ||
-      core_buffer != floor(core_buffer)
+    !is.numeric(min_core_period) ||
+      length(min_core_period) != 1L ||
+      is.na(min_core_period) ||
+      !is.finite(min_core_period) ||
+      min_core_period < 1 ||
+      min_core_period > .Machine$integer.max ||
+      min_core_period != floor(min_core_period)
   ) {
-    stop("`core_buffer` must be one non-negative whole number.", call. = FALSE)
+    stop("`min_core_period` must be one positive whole number.", call. = FALSE)
   }
 
-  as.integer(core_buffer)
+  as.integer(min_core_period)
 }
 
 .ts_total_time <- function(x) {
@@ -31,14 +31,14 @@
   as.integer(sum(diff(c(0L, x)) == 1L))
 }
 
-.ts_gap_mean <- function(x) {
-  gaps <- .ts_run_lengths(x, 0L)
+.ts_gap_mean <- function(x, include_boundary_gaps = TRUE) {
+  gaps <- .ts_gap_lengths(x, include_boundary_gaps)
   if (length(gaps) == 0L) return(0)
   mean(gaps)
 }
 
-.ts_gap_max <- function(x) {
-  gaps <- .ts_run_lengths(x, 0L)
+.ts_gap_max <- function(x, include_boundary_gaps = TRUE) {
+  gaps <- .ts_gap_lengths(x, include_boundary_gaps)
   if (length(gaps) == 0L) return(0L)
   as.integer(max(gaps))
 }
@@ -71,22 +71,40 @@
   mean(x[-length(x)] == x[-1L])
 }
 
-.ts_core_time_index <- function(x, core_buffer = 1L) {
-  core_buffer <- .ts_validate_core_buffer(core_buffer)
+.ts_core_time_index <- function(x, min_core_period = 15L) {
+  min_core_period <- .ts_validate_min_core_period(min_core_period)
   lengths <- .ts_run_lengths(x, 1L)
   if (length(lengths) == 0L) return(0)
 
   total <- sum(x)
   if (total == 0L) return(0)
 
-  core_lengths <- pmax(lengths - 2L * core_buffer, 0L)
+  core_lengths <- lengths[lengths >= min_core_period]
   sum(core_lengths) / total
 }
 
-.ts_n_core_periods <- function(x, core_buffer = 1L) {
-  core_buffer <- .ts_validate_core_buffer(core_buffer)
+.ts_n_core_periods <- function(x, min_core_period = 15L) {
+  min_core_period <- .ts_validate_min_core_period(min_core_period)
   lengths <- .ts_run_lengths(x, 1L)
   if (length(lengths) == 0L) return(0L)
 
-  as.integer(sum(lengths > 2L * core_buffer))
+  as.integer(sum(lengths >= min_core_period))
+}
+
+.ts_validate_boundary_gaps <- function(include_boundary_gaps) {
+  if (!is.logical(include_boundary_gaps) ||
+      length(include_boundary_gaps) != 1L || is.na(include_boundary_gaps)) {
+    stop("`include_boundary_gaps` must be TRUE or FALSE.", call. = FALSE)
+  }
+  invisible(include_boundary_gaps)
+}
+
+.ts_gap_lengths <- function(x, include_boundary_gaps) {
+  .ts_validate_boundary_gaps(include_boundary_gaps)
+  if (!include_boundary_gaps) {
+    present <- which(x == 1L)
+    if (length(present) == 0L) return(integer())
+    x <- x[seq.int(present[1L], present[length(present)])]
+  }
+  .ts_run_lengths(x, 0L)
 }

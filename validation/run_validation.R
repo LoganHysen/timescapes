@@ -58,14 +58,14 @@ expected <- 3 / 7
 stopifnot(isTRUE(all.equal(actual, expected, tolerance = 1e-12)))
 cat("PASS vector: aggregation\n")
 
-# With one step removed from each end, run 111 retains one of four present steps.
-actual <- ts_metric(x, "core_time_index", core_buffer = 1)
-expected <- 1 / 4
+# Run 111 qualifies in full: three of four present time steps.
+actual <- ts_metric(x, "core_time_index", min_core_period = 3)
+expected <- 3 / 4
 stopifnot(isTRUE(all.equal(actual, expected, tolerance = 1e-12)))
 cat("PASS vector: core_time_index\n")
 
-# Only run 111 is longer than twice the one-step buffer.
-actual <- ts_metric(x, "n_core_periods", core_buffer = 1)
+# Only run 111 reaches the threshold of three time steps.
+actual <- ts_metric(x, "n_core_periods", min_core_period = 3)
 expected <- 1
 stopifnot(actual == expected)
 cat("PASS vector: n_core_periods\n")
@@ -131,18 +131,28 @@ actual <- matrix(values(edge_density_map)[, 1], nrow = 2, byrow = TRUE)
 stopifnot(isTRUE(all.equal(actual, expected, tolerance = 1e-12)))
 cat("PASS raster: edge_density\n")
 
-# With buffer 2, runs 3 and 1 are zero; run 8 retains 4/8 steps.
-core_time_map <- ts_raster_metric(r, "core_time_index", core_buffer = 2)
+# At threshold 4, runs 3 and 1 do not qualify; all of run 8 qualifies.
+core_time_map <- ts_raster_metric(r, "core_time_index", min_core_period = 4)
 expected <- rbind(
-  c(0, 1 / 2),
+  c(0, 1),
   c(0, NA)
 )
 actual <- matrix(values(core_time_map)[, 1], nrow = 2, byrow = TRUE)
 stopifnot(isTRUE(all.equal(actual, expected, tolerance = 1e-12)))
-cat("PASS raster: core_time_index with core_buffer = 2\n")
+cat("PASS raster: core_time_index with min_core_period = 4\n")
 
 # Optional visual inspection in an interactive R session:
 # plot(r)             # Eight 2 x 2 input layers
 # plot(n_periods_map)
 
-cat("All 15 validation checks passed.\n")
+# Interior gap is length 1; all-absence cells have no interior gaps.
+for (metric in c("gap_mean", "gap_max")) {
+  stopifnot(ts_metric(x, metric, include_boundary_gaps = FALSE) == 1)
+  actual <- as.vector(values(ts_raster_metric(r, metric, include_boundary_gaps = FALSE)))
+  stopifnot(isTRUE(all.equal(actual, c(1, 0, 0, NA))))
+  cat("PASS vector and raster: interior", metric, "\n")
+}
+actual <- as.vector(values(ts_raster_metric(r, "n_core_periods", min_core_period = 3)))
+stopifnot(isTRUE(all.equal(actual, c(1, 1, 0, NA))))
+cat("PASS raster: n_core_periods at threshold 3\n")
+cat("All 20 validation checks passed.\n")

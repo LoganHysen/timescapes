@@ -33,8 +33,8 @@ test_that("raster metric arguments are forwarded", {
     byrow = TRUE
   )
 
-  result <- ts_raster_metric(r, "core_time_index", core_buffer = 2)
-  expect_equal(unname(terra::values(result)[, 1]), c(1 / 5, 0))
+  result <- ts_raster_metric(r, "core_time_index", min_core_period = 3)
+  expect_equal(unname(terra::values(result)[, 1]), c(1, 0))
 })
 
 test_that("raster inputs use binary validation", {

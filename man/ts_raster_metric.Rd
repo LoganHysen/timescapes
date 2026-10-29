@@ -11,7 +11,10 @@ ts_raster_metric(r, metric, ...)
 
 \item{metric}{One exact metric name returned by \code{\link[=ts_list_metrics]{ts_list_metrics()}}.}
 
-\item{...}{Named metric-specific arguments passed to \code{\link[=ts_metric]{ts_metric()}}.}
+\item{...}{Named metric-specific arguments passed to \code{\link[=ts_metric]{ts_metric()}}, including
+\code{include_boundary_gaps = TRUE} for gap metrics and a positive whole number
+\code{min_core_period} for core metrics. Omitting \code{min_core_period} uses 15 time
+steps and warns once per raster call, rather than once per cell.}
 }
 \value{
 A one-layer \code{terra::SpatRaster} containing the selected metric.

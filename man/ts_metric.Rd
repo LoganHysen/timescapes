@@ -12,8 +12,10 @@ ts_metric(x, metric, ...)
 \item{metric}{One exact metric name returned by \code{\link[=ts_list_metrics]{ts_list_metrics()}}.}
 
 \item{...}{Named metric-specific arguments. \code{core_time_index} and
-\code{n_core_periods} accept \code{core_buffer}, a non-negative whole number with a
-default of \code{1}.}
+\code{n_core_periods} accept \code{min_core_period}, a positive whole number of time
+steps. If omitted, 15 is used with a warning once per call. \code{gap_mean} and
+\code{gap_max} accept \code{include_boundary_gaps} (default \code{TRUE}); set it to \code{FALSE}
+to count only absence runs between presence periods.}
 }
 \value{
 One numeric value.
@@ -28,7 +30,9 @@ condition is present and \code{0} means that it is absent. Metric names must mat
 
 Let \code{n} be the number of time steps, let an occupied period be a maximal run
 of ones, and let a gap be any maximal run of zeros, including leading and
-trailing runs.
+trailing runs by default. With \code{include_boundary_gaps = FALSE}, only gaps
+between presence periods count. No qualifying gaps (including an all-zero
+series with boundary gaps excluded) returns 0.
 \itemize{
 \item \code{total_time}: sum of the series; range 0 to \code{n}.
 \item \code{n_periods}: number of occupied periods; range 0 to \code{ceiling(n / 2)}.
@@ -42,17 +46,23 @@ when fewer than two occupied periods occur.
 2 through \code{n}; returns \code{NA} when the correlation is undefined.
 \item \code{aggregation}: proportion of adjacent time-step pairs that are equal;
 returns 0 for a one-step series.
-\item \code{core_time_index}: proportion of occupied time remaining after removing
-\code{core_buffer} steps from both ends of every occupied period.
-\item \code{n_core_periods}: number of occupied periods longer than twice
-\code{core_buffer}.
+\item \code{core_time_index}: proportion of occupied time in presence runs whose full
+length is at least \code{min_core_period}; returns 0 when no presence occurs.
+\item \code{n_core_periods}: number of such qualifying presence runs.
 }
+
+Time steps are unitless ordered observations; their duration is user-defined.
 }
 
 \examples{
 x <- c(1, 1, 0, 0, 1, 1, 1, 0)
 ts_metric(x, "n_periods")
 ts_metric(x, "gap_mean")
-ts_metric(x, "core_time_index", core_buffer = 1)
+ts_metric(x, "core_time_index", min_core_period = 3)
 
+}
+\references{
+Wan, H. Y. (2025). It's about time: Temporal fragmentation and
+metrics for habitat change. Landscape Ecology, 40, 226.
+\doi{10.1007/s10980-025-02252-4}
 }

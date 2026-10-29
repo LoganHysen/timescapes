@@ -78,8 +78,12 @@
     )
   }
 
-  if ("core_buffer" %in% dot_names) {
-    .ts_validate_core_buffer(dots$core_buffer)
+  if ("min_core_period" %in% dot_names) {
+    .ts_validate_min_core_period(dots$min_core_period)
+  }
+
+  if ("include_boundary_gaps" %in% dot_names) {
+    .ts_validate_boundary_gaps(dots$include_boundary_gaps)
   }
 
   invisible(dots)
@@ -89,6 +93,12 @@
   metric <- .ts_validate_metric(metric)
   metric_fun <- .ts_registry[[metric]]
   .ts_validate_metric_args(metric_fun, dots)
+  if (metric %in% c("core_time_index", "n_core_periods") &&
+      !"min_core_period" %in% names(dots)) {
+    warning("`min_core_period` was omitted; using 15 time steps as the core period.",
+            call. = FALSE)
+    dots$min_core_period <- 15L
+  }
   list(name = metric, fun = metric_fun, args = dots)
 }
 
@@ -121,15 +131,19 @@
 #' @param x A non-empty numeric vector containing only `0`, `1`, or `NA`.
 #' @param metric One exact metric name returned by [ts_list_metrics()].
 #' @param ... Named metric-specific arguments. `core_time_index` and
-#'   `n_core_periods` accept `core_buffer`, a non-negative whole number with a
-#'   default of `1`.
+#'   `n_core_periods` accept `min_core_period`, a positive whole number of time
+#'   steps. If omitted, 15 is used with a warning once per call. `gap_mean` and
+#'   `gap_max` accept `include_boundary_gaps` (default `TRUE`); set it to `FALSE`
+#'   to count only absence runs between presence periods.
 #'
 #' @return One numeric value.
 #'
 #' @section Metrics:
 #' Let `n` be the number of time steps, let an occupied period be a maximal run
 #' of ones, and let a gap be any maximal run of zeros, including leading and
-#' trailing runs.
+#' trailing runs by default. With `include_boundary_gaps = FALSE`, only gaps
+#' between presence periods count. No qualifying gaps (including an all-zero
+#' series with boundary gaps excluded) returns 0.
 #'
 #' - `total_time`: sum of the series; range 0 to `n`.
 #' - `n_periods`: number of occupied periods; range 0 to `ceiling(n / 2)`.
@@ -143,16 +157,21 @@
 #'   2 through `n`; returns `NA` when the correlation is undefined.
 #' - `aggregation`: proportion of adjacent time-step pairs that are equal;
 #'   returns 0 for a one-step series.
-#' - `core_time_index`: proportion of occupied time remaining after removing
-#'   `core_buffer` steps from both ends of every occupied period.
-#' - `n_core_periods`: number of occupied periods longer than twice
-#'   `core_buffer`.
+#' - `core_time_index`: proportion of occupied time in presence runs whose full
+#'   length is at least `min_core_period`; returns 0 when no presence occurs.
+#' - `n_core_periods`: number of such qualifying presence runs.
+#'
+#' Time steps are unitless ordered observations; their duration is user-defined.
+#'
+#' @references Wan, H. Y. (2025). It's about time: Temporal fragmentation and
+#'   metrics for habitat change. Landscape Ecology, 40, 226.
+#'   \doi{10.1007/s10980-025-02252-4}
 #'
 #' @examples
 #' x <- c(1, 1, 0, 0, 1, 1, 1, 0)
 #' ts_metric(x, "n_periods")
 #' ts_metric(x, "gap_mean")
-#' ts_metric(x, "core_time_index", core_buffer = 1)
+#' ts_metric(x, "core_time_index", min_core_period = 3)
 #'
 #' @export
 ts_metric <- function(x, metric, ...) {

@@ -29,6 +29,7 @@ test_that("binary vector validation rejects malformed inputs", {
 
 test_that("a missing time step invalidates every metric result", {
   for (metric in ts_list_metrics()) {
-    expect_identical(ts_metric(c(1, NA, 0), metric), NA_real_)
+    args <- if (metric %in% c("core_time_index", "n_core_periods")) list(min_core_period = 3) else list()
+    expect_identical(do.call(ts_metric, c(list(c(1, NA, 0), metric), args)), NA_real_)
   }
 })

@@ -12,13 +12,7 @@ to every cell in a raster time series.
 
 ## Installation
 
-Install the stable version via CRAN with:
-
-```r
-install.packages("timescapes")
-```
-
-You can also install the development version from GitHub:
+Install the development version from GitHub:
 
 ```r
 remotes::install_github("LoganHysen/timescapes")
@@ -36,7 +30,7 @@ x <- c(1, 1, 0, 0, 1, 1, 1, 0)
 ts_list_metrics()
 ts_metric(x, "n_periods")
 ts_metric(x, "gap_mean")
-ts_metric(x, "core_time_index", core_buffer = 1)
+ts_metric(x, "core_time_index", min_core_period = 3)
 ```
 
 The available metrics are:
@@ -49,7 +43,7 @@ The available metrics are:
 - `edge_density`: proportion of adjacent steps that change state
 - `autocorr`: lag-1 Pearson autocorrelation
 - `aggregation`: proportion of adjacent steps with the same state
-- `core_time_index`: proportion of presence time away from period edges
+- `core_time_index`: proportion of presence time in qualifying core periods
 - `n_core_periods`: number of presence periods containing core time
 
 Metric names must match exactly. Inputs must be non-empty numeric vectors
@@ -86,7 +80,7 @@ receives an `NA` result.
 
 ## Vignettes
 
-- [Getting Started](https://github.com/LoganHysen/timescapes/blob/dev/vignettes/getting-started.Rmd)
+- [Getting Started](vignettes/getting-started.Rmd)
 
 ## Development
 
@@ -105,10 +99,24 @@ This package is licensed under the **MIT License** (see the [LICENSE](LICENSE) f
 
 If you use `timescapes` in published work, please cite it as:
 
-TBD
+Wan, H. Y. (2025). It’s about time: Temporal fragmentation and metrics for habitat change. *Landscape Ecology*, **40**, 226. https://doi.org/10.1007/s10980-025-02252-4
 
 ## Authors
 
 Logan Hysen: hysenlog@msu.edu
-Ho Yi Wan: hoyiwan@gmail.com
+Ho Yi Wan: wanhoyi@ufl.edu
 
+
+## Metric options
+
+Time steps are unitless ordered observations with a duration defined by the user.
+Gap metrics include leading and trailing absence runs by default. Set
+`include_boundary_gaps = FALSE` to count only gaps between presence periods;
+no qualifying gaps returns 0, including for an all-absence series.
+
+For core metrics, supply `min_core_period`, a positive whole number of time
+steps. A presence run qualifies when its full length is at least this threshold.
+`core_time_index` divides the total length of qualifying runs by total presence
+time (0 if there is no presence); `n_core_periods` counts qualifying runs.
+Omitting the threshold uses 15 time steps and issues one warning per vector or
+raster call. The former `core_buffer` argument is no longer accepted.
