@@ -105,6 +105,8 @@ Wan, H. Y. (2025). It’s about time: Temporal fragmentation and metrics for hab
 
 Logan Hysen: hysenlog@msu.edu
 Ho Yi Wan: wanhoyi@ufl.edu
+Ramcharan Reddy Mannam: ramcharan.mannam@ufl.edu
+Abhiram Moturi: ab.moturi@ufl.edu
 
 
 ## Metric options
