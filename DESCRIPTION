@@ -13,7 +13,7 @@ Authors@R:
              role = c("aut", "cph"))
     )
 Description: Calculates interpretable mathematical summaries of binary
-    conditions observed through time, based on metrics presented in Wan, Ho Yi (2025) https://doi.org/10.1007/s10980-025-02252-4. 
+    conditions observed through time, based on metrics presented in Wan, Ho Yi (2025) <doi:10.1007/s10980-025-02252-4>. 
     Metrics can be calculated for a single binary vector or independently for every cell in a raster time series.
 License: MIT + file LICENSE
 Encoding: UTF-8
