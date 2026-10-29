@@ -1,0 +1,131 @@
+# timescapes
+
+`timescapes` calculates interpretable metrics for binary conditions
+observed through time. A `1` means that a condition is present and a `0`
+means that it is absent. The same metrics can be applied to a single
+vector or independently to every cell in a raster time series.
+
+## Installation
+
+Install the development version from GitHub:
+
+``` r
+
+remotes::install_github("LoganHysen/timescapes")
+```
+
+## Vector metrics
+
+Calculate one metric by supplying an exact name from
+[`ts_list_metrics()`](https://loganhysen.github.io/timescapes/reference/ts_list_metrics.md):
+
+``` r
+
+library(timescapes)
+
+x <- c(1, 1, 0, 0, 1, 1, 1, 0)
+
+ts_list_metrics()
+ts_metric(x, "n_periods")
+ts_metric(x, "gap_mean")
+ts_metric(x, "core_time_index", min_core_period = 3)
+```
+
+The available metrics are:
+
+- `total_time`: number of time steps with presence
+- `n_periods`: number of distinct presence periods
+- `gap_mean`: mean length of absence periods
+- `gap_max`: maximum length of an absence period
+- `duration_sd`: variability in presence-period lengths
+- `edge_density`: proportion of adjacent steps that change state
+- `autocorr`: lag-1 Pearson autocorrelation
+- `aggregation`: proportion of adjacent steps with the same state
+- `core_time_index`: proportion of presence time in qualifying core
+  periods
+- `n_core_periods`: number of presence periods containing core time
+
+Metric names must match exactly. Inputs must be non-empty numeric
+vectors containing only `0`, `1`, or `NA`. If any time step is missing,
+the metric is `NA`.
+
+## Raster metrics
+
+For a
+[`terra::SpatRaster`](https://rspatial.github.io/terra/reference/SpatRaster-class.html),
+layers are treated as ordered time steps and the metric is calculated
+independently for every cell:
+
+``` r
+
+library(terra)
+library(timescapes)
+
+r <- rast(nrows = 2, ncols = 2, nlyrs = 4)
+values(r) <- matrix(
+  c(
+    1, 1, 0, 1,
+    0, 0, 0, 0,
+    1, 0, 1, 0,
+    1, 1, 1, 1
+  ),
+  nrow = ncell(r),
+  byrow = TRUE
+)
+
+periods <- ts_raster_metric(r, "n_periods")
+plot(periods)
+```
+
+Raster values must also be binary. A cell with one or more missing time
+steps receives an `NA` result.
+
+## Vignettes
+
+- [Getting
+  Started](https://loganhysen.github.io/timescapes/vignettes/getting-started.Rmd)
+
+## Development
+
+Run the tests and CRAN checks with:
+
+``` r
+
+testthat::test_local()
+devtools::check(args = "--as-cran")
+```
+
+## License
+
+This package is licensed under the **MIT License** (see the
+[LICENSE](https://loganhysen.github.io/timescapes/LICENSE) file).
+
+## Citation
+
+If you use `timescapes` in published work, please cite it as:
+
+Wan, H. Y. (2025). It’s about time: Temporal fragmentation and metrics
+for habitat change. *Landscape Ecology*, **40**, 226.
+<https://doi.org/10.1007/s10980-025-02252-4>
+
+## Authors
+
+Logan Hysen: <hysenlog@msu.edu> Ho Yi Wan: <wanhoyi@ufl.edu> Ramcharan
+Reddy Mannam: <ramcharan.mannam@ufl.edu> Abhiram Moturi:
+<ab.moturi@ufl.edu>
+
+## Metric options
+
+Time steps are unitless ordered observations with a duration defined by
+the user. Gap metrics include leading and trailing absence runs by
+default. Set `include_boundary_gaps = FALSE` to count only gaps between
+presence periods; no qualifying gaps returns 0, including for an
+all-absence series.
+
+For core metrics, supply `min_core_period`, a positive whole number of
+time steps. A presence run qualifies when its full length is at least
+this threshold. `core_time_index` divides the total length of qualifying
+runs by total presence time (0 if there is no presence);
+`n_core_periods` counts qualifying runs. Omitting the threshold uses 15
+time steps and issues one warning per vector or raster call. The former
+`core_buffer` argument is no longer accepted.
